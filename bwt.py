@@ -118,16 +118,9 @@ def backwards_search(p_enc, indexed_bwt, prefix_sums, last_char_in_alphabet, ran
             a = prefix_sums[letter]
             next_sum = get_next_prefix_sum(prefix_sums, letter, n, last_char_in_alphabet)
             b = next_sum - 1
-            # if letter == "$":
-            #     b = prefix_sums["a"] - 1
-            # elif letter == last_char_in_alphabet: 
-            #     b = n - 1
-            # else:
-            #     b = prefix_sums[chr(ord(letter) + 1)] - 1
         else:
             a = prefix_sums[letter] + rank[letter][a-1]
             b = prefix_sums[letter] + rank[letter][b] - 1
-        print(a, b)
         if b < a:
             return f"no pattern found"
     return a, b
@@ -138,7 +131,6 @@ def reverse_indexed_bwt(indexed_bwt, prefix_sums):
     i = 0
     current_letter = ("$", 0) 
     for _ in range(n):
-        print(i, current_letter)
         indexed_s.append(current_letter)
         current_letter = indexed_bwt[i]
         i = prefix_sums[current_letter[0]] + current_letter[1]
@@ -147,20 +139,8 @@ def reverse_indexed_bwt(indexed_bwt, prefix_sums):
 
 def start_letter_occurences(start, end, f):
     return f[start:end+1]
-    # occurrences = []
-    # print(start, end, "!!!")
-    # for i in range(start, end + 1):
-    #     next_sum = get_next_prefix_sum(prefix_sums, pattern_first_letter, n, last_char_in_alphabet)
-    #     # print(prefix_sums[pattern_first_letter] + rank[pattern_first_letter][i], i - "-----")
-    #     # new_ind = prefix_sums[pattern_first_letter] + rank[pattern_first_letter][i-1]
-    #     # print(new_ind, indexed_bwt[new_ind], rank[pattern_first_letter][i], "-----")
-    #     if indexed_bwt[i][0] == pattern_first_letter:
-    #         occurrences.append(i)
-    # return occurrences
-    # return [(pattern_first_letter, i-1) for i in range(start, end + 1)]
 
 def initial_string_occurences(indexed_s, start_letter_occurences):
-    print(indexed_s, "!!!!", start_letter_occurences)
     return [ind for ind, indexed_l in enumerate(indexed_s) if indexed_l in start_letter_occurences]
 
 def check_occurences(initial_s_occurences, s, p):
@@ -170,32 +150,21 @@ def check_occurences(initial_s_occurences, s, p):
 def first_column(indexed_bwt):
     return sorted(indexed_bwt)
 
-s = "banana$"
+s = "panamabanana$"
+p = "can"
 n = len(s)
 minimal_alphabet_encode, minimal_alphabet_decode, alphabet = minimal_alphabet_dicts(s)
 s_enc = minimal_string_encoding(s, minimal_alphabet_encode)
 bwt = burrows_wheeler_transform(s_enc)
-print(bwt) 
 letters_count, indexed_bwt = letter_occurences_and_indexed_bwt(bwt)
-print(indexed_bwt, "indexed_bwt")
-print(letters_count)
-print(alphabet)
 prefix_sums = compute_prefix_sums(letters_count, alphabet)
-print(prefix_sums)
-p = "bana"
 p_enc = minimal_string_encoding(p, minimal_alphabet_encode)
-print(p_enc)
 rank = calculate_rank(bwt, alphabet)
-print(rank)
-print(backwards_search(p_enc, indexed_bwt, prefix_sums, alphabet[-1], rank))
 start, end = backwards_search(p_enc, indexed_bwt, prefix_sums, alphabet[-1], rank)
-print(bwt, start, end)
 indexed_s = reverse_indexed_bwt(indexed_bwt, prefix_sums)
 f = first_column(indexed_bwt)
 start_l_occ = start_letter_occurences(start, end, f)
-print(start_l_occ)
 final_occ = initial_string_occurences(indexed_s, start_l_occ)
 print(final_occ)
 print(check_occurences(final_occ, s, p))
-print(rank["a"], prefix_sums)
 

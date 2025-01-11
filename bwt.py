@@ -11,14 +11,19 @@
 
 def minimal_alphabet_dicts(s):
     unique_letters = sorted(set(s))
+    minimal_alphabet = []
     minimal_alphabet_encode = {}
     minimal_alphabet_decode = {}
-    letter_to_use = "a"
-    for c in unique_letters:
+    letter_to_use = "$"
+    for i, c in enumerate(unique_letters):
         minimal_alphabet_encode[c] = letter_to_use
         minimal_alphabet_decode[letter_to_use] = c
-        letter_to_use = chr(ord(letter_to_use) + 1)
-    return minimal_alphabet_encode, minimal_alphabet_decode
+        minimal_alphabet.append(letter_to_use)
+        if i == 0:
+            letter_to_use = "a"
+        else:
+            letter_to_use = chr(ord(letter_to_use) + 1)
+    return minimal_alphabet_encode, minimal_alphabet_decode, minimal_alphabet
 
 def minimal_string_encoding(s, minimal_alphabet_encode):
     new_s = ""
@@ -50,18 +55,38 @@ def suffix_array_construction(s):
         k *= 2
     return suffix_array
 
+def burrows_wheeler_transform(s):
+    """Compute the Burrows-Wheeler Transform of a string s in linear time."""
+    suffix_array = suffix_array_construction(s)
+    bwt = "".join(s[i - 1] if i > 0 else "$" for i in suffix_array)
+    return bwt
 
+def letter_occurences_and_indexed_bwt(bwt):
+    letters_count = {}
+    indexed_bwt = []
+    for i, c in enumerate(bwt):
+        if c not in letters_count:
+            letters_count[c] = 0
+        indexed_bwt.append((c, letters_count[c]))
+        letters_count[c] += 1
+    return letters_count, indexed_bwt
 
-s = "steak"
-s = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz'
-minimal_alphabet_encode, minimal_alphabet_decode = minimal_alphabet_dicts(s)
-print(minimal_alphabet_encode)
-encoded_s = minimal_string_encoding(s, minimal_alphabet_encode)
-decoded_s = decode_string(encoded_s, minimal_alphabet_decode)
-print(s, encoded_s, decoded_s)
-print(s == decoded_s == encoded_s)
-# print(decode_string(s, minimal_alphabet_decode))
+def compute_prefix_sums(letter_count, alphabet):
+    previous_sum = 0
+    prefix_sums = {}
+    for c in alphabet:
+        prefix_sums[c] = previous_sum
+        previous_sum += letter_count[c]
+    return prefix_sums
 
-
-
-# print(minimal_letters('steak'))
+s = "banana$"
+minimal_alphabet_encode, minimal_alphabet_decode, alphabet = minimal_alphabet_dicts(s)
+s_enc = minimal_string_encoding(s, minimal_alphabet_encode)
+bwt = burrows_wheeler_transform(s_enc)
+print(bwt) 
+letters_count, indexed_bwt = letter_occurences_and_indexed_bwt(bwt)
+print(indexed_bwt)
+print(letters_count)
+print(alphabet)
+prefix_sums = compute_prefix_sums(letters_count, alphabet)
+print(prefix_sums)

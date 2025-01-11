@@ -64,7 +64,7 @@ def burrows_wheeler_transform(s):
 def letter_occurences_and_indexed_bwt(bwt):
     letters_count = {}
     indexed_bwt = []
-    for i, c in enumerate(bwt):
+    for c in bwt:
         if c not in letters_count:
             letters_count[c] = 0
         indexed_bwt.append((c, letters_count[c]))

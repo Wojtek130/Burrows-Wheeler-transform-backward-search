@@ -104,7 +104,6 @@ def calculate_rank(bwt, alphabet):
         r[c] = c_occ
     return r
 
-
 def get_next_prefix_sum(prefix_sums, letter, n, last_char_in_alphabet):
     next_sum = 0
     if letter == "$":
@@ -157,13 +156,13 @@ def bwt_search(s_org, p):
     s = s_org + "$"
     minimal_alphabet_encode, alphabet = construct_minimal_alphabet(s)
     s_enc = minimal_string_encoding(s, minimal_alphabet_encode)
-    bwt = burrows_wheeler_transform(s_enc)
-    letters_count, indexed_bwt = letter_occurences_and_indexed_bwt(bwt)
-    prefix_sums = compute_prefix_sums(letters_count, alphabet)
     p_enc = minimal_string_encoding(p, minimal_alphabet_encode)
     if p_enc is None:
         print(f"Pattern '{p}' not found in '{s_org}'")
         return
+    bwt = burrows_wheeler_transform(s_enc)
+    letters_count, indexed_bwt = letter_occurences_and_indexed_bwt(bwt)
+    prefix_sums = compute_prefix_sums(letters_count, alphabet)
     rank = calculate_rank(bwt, alphabet)
     start, end = backwards_search(p_enc, indexed_bwt, prefix_sums, alphabet[-1], rank)
     if start is None or end is None:

@@ -9,21 +9,30 @@
 # next  iter: start = prefix_sums[letter[0]] + bwt[a][1], end = prefix_sums[letter[0]] + bwt[b][1] - 1
 # after loop: 
 
-def minimal_alphabet_dicts(s):
-    unique_letters = sorted(set(s))
+def radix_sort(s, alphabet):
+    n = len(alphabet)
+    char_to_index = {char: i for i, char in enumerate(alphabet)}  
+    count = [0] * n
+    for char in s:
+        count[char_to_index[char]] += 1
+    sorted_string = []
+    for i, freq in enumerate(count):
+        sorted_string.append(alphabet[i] * freq) 
+    return list(filter(lambda x: x != "", sorted_string))
+
+def construct_minimal_alphabet(s, initial_alphabet="$abcdefghijklmnopqrstuvwxyz"):
+    unique_letters = radix_sort(set(s), initial_alphabet)
     minimal_alphabet = []
     minimal_alphabet_encode = {}
-    minimal_alphabet_decode = {}
     letter_to_use = "$"
     for i, c in enumerate(unique_letters):
         minimal_alphabet_encode[c] = letter_to_use
-        minimal_alphabet_decode[letter_to_use] = c
         minimal_alphabet.append(letter_to_use)
         if i == 0:
             letter_to_use = "a"
         else:
             letter_to_use = chr(ord(letter_to_use) + 1)
-    return minimal_alphabet_encode, minimal_alphabet_decode, minimal_alphabet
+    return minimal_alphabet_encode, minimal_alphabet
 
 def minimal_string_encoding(s, minimal_alphabet_encode):
     new_s = ""
@@ -49,7 +58,7 @@ def suffix_array_construction(s):
     k = 1
     while k < n:
         key = lambda x: (rank[x], rank[x + k] if x + k < n else -1)
-        suffix_array.sort(key=key)  # Sort suffix indices by (rank, rank + k)
+        suffix_array.sort(key=key)  
         tmp = [0] * n
         for i in range(1, n):
             tmp[suffix_array[i]] = tmp[suffix_array[i - 1]]
@@ -149,25 +158,21 @@ def check_occurences(initial_s_occurences, s, p):
     m = len(p)
     return [s[i:i+m] for i in initial_s_occurences]
 
-def first_column(indexed_bwt):
-    return sorted(indexed_bwt)
-
-def main():
-    s = "banana$"
-    p = "an"
-    minimal_alphabet_encode, minimal_alphabet_decode, alphabet = minimal_alphabet_dicts(s)
+def bwt_search(s_org, p):
+    s = s_org + "$"
+    minimal_alphabet_encode, alphabet = construct_minimal_alphabet(s)
     s_enc = minimal_string_encoding(s, minimal_alphabet_encode)
     bwt = burrows_wheeler_transform(s_enc)
     letters_count, indexed_bwt = letter_occurences_and_indexed_bwt(bwt)
     prefix_sums = compute_prefix_sums(letters_count, alphabet)
     p_enc = minimal_string_encoding(p, minimal_alphabet_encode)
     if p_enc is None:
-        print("Pattern not found")
+        print(f"Pattern '{p}' not found in '{s_org}'")
         return
     rank = calculate_rank(bwt, alphabet)
     start, end = backwards_search(p_enc, indexed_bwt, prefix_sums, alphabet[-1], rank)
     if start is None or end is None:
-        print("Pattern not found")
+        print(f"Pattern '{p}' not found in '{s_org}'")
         return
     indexed_s = reverse_indexed_bwt(indexed_bwt, prefix_sums)
     start_l_occ = start_letter_occurences(start, end, p_enc[0], prefix_sums)
@@ -175,4 +180,6 @@ def main():
     print(final_occ)
     print(check_occurences(final_occ, s, p))
 
-main()
+s = "banana"
+p = "an"
+bwt_search(s, p)

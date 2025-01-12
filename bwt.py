@@ -32,6 +32,7 @@ def minimal_string_encoding(s, minimal_alphabet_encode):
             new_s += minimal_alphabet_encode[c]
         except KeyError:
             print(f"Character '{c}' not in minimal alphabet")
+            return None
     return new_s
 
 def decode_string(s, minimal_alphabet_decode):
@@ -122,7 +123,7 @@ def backwards_search(p_enc, indexed_bwt, prefix_sums, last_char_in_alphabet, ran
             a = prefix_sums[letter] + rank[letter][a-1]
             b = prefix_sums[letter] + rank[letter][b] - 1
         if b < a:
-            return f"no pattern found"
+            return None, None
     return a, b
 
 def reverse_indexed_bwt(indexed_bwt, prefix_sums):
@@ -137,8 +138,9 @@ def reverse_indexed_bwt(indexed_bwt, prefix_sums):
     indexed_s.reverse()
     return indexed_s
 
-def start_letter_occurences(start, end, f):
-    return f[start:end+1]
+def start_letter_occurences(start, end, first_pattern_letter, prefix_sums):
+    diff = end - start + 1
+    return [(first_pattern_letter, start - prefix_sums[first_pattern_letter] + i) for i in range(diff)]
 
 def initial_string_occurences(indexed_s, start_letter_occurences):
     return [ind for ind, indexed_l in enumerate(indexed_s) if indexed_l in start_letter_occurences]
@@ -150,21 +152,27 @@ def check_occurences(initial_s_occurences, s, p):
 def first_column(indexed_bwt):
     return sorted(indexed_bwt)
 
-s = "panamabanana$"
-p = "can"
-n = len(s)
-minimal_alphabet_encode, minimal_alphabet_decode, alphabet = minimal_alphabet_dicts(s)
-s_enc = minimal_string_encoding(s, minimal_alphabet_encode)
-bwt = burrows_wheeler_transform(s_enc)
-letters_count, indexed_bwt = letter_occurences_and_indexed_bwt(bwt)
-prefix_sums = compute_prefix_sums(letters_count, alphabet)
-p_enc = minimal_string_encoding(p, minimal_alphabet_encode)
-rank = calculate_rank(bwt, alphabet)
-start, end = backwards_search(p_enc, indexed_bwt, prefix_sums, alphabet[-1], rank)
-indexed_s = reverse_indexed_bwt(indexed_bwt, prefix_sums)
-f = first_column(indexed_bwt)
-start_l_occ = start_letter_occurences(start, end, f)
-final_occ = initial_string_occurences(indexed_s, start_l_occ)
-print(final_occ)
-print(check_occurences(final_occ, s, p))
+def main():
+    s = "banana$"
+    p = "an"
+    minimal_alphabet_encode, minimal_alphabet_decode, alphabet = minimal_alphabet_dicts(s)
+    s_enc = minimal_string_encoding(s, minimal_alphabet_encode)
+    bwt = burrows_wheeler_transform(s_enc)
+    letters_count, indexed_bwt = letter_occurences_and_indexed_bwt(bwt)
+    prefix_sums = compute_prefix_sums(letters_count, alphabet)
+    p_enc = minimal_string_encoding(p, minimal_alphabet_encode)
+    if p_enc is None:
+        print("Pattern not found")
+        return
+    rank = calculate_rank(bwt, alphabet)
+    start, end = backwards_search(p_enc, indexed_bwt, prefix_sums, alphabet[-1], rank)
+    if start is None or end is None:
+        print("Pattern not found")
+        return
+    indexed_s = reverse_indexed_bwt(indexed_bwt, prefix_sums)
+    start_l_occ = start_letter_occurences(start, end, p_enc[0], prefix_sums)
+    final_occ = initial_string_occurences(indexed_s, start_l_occ)
+    print(final_occ)
+    print(check_occurences(final_occ, s, p))
 
+main()

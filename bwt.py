@@ -69,7 +69,6 @@ def suffix_array_construction(s):
     return suffix_array
 
 def burrows_wheeler_transform(s):
-    """Compute the Burrows-Wheeler Transform of a string s in linear time."""
     suffix_array = suffix_array_construction(s)
     bwt = "".join(s[i - 1] if i > 0 else "$" for i in suffix_array)
     return bwt
@@ -91,10 +90,6 @@ def compute_prefix_sums(letter_count, alphabet):
         prefix_sums[c] = previous_sum
         previous_sum += letter_count[c]
     return prefix_sums
-
-def occ(letter, bwt, i):
-    # O(n) but should be O(1)
-    return bwt[:(i+1)].count(letter)
 
 def calculate_rank(bwt, alphabet):
     r = {}

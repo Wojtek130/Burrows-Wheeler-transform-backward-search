@@ -155,16 +155,27 @@ def check_occurences(initial_s_occurences, s, p):
 def bwt_search(s_org, p):
     s = s_org + "$"
     minimal_alphabet_encode, alphabet = construct_minimal_alphabet(s)
+    print("minimal alphabet encode: ", minimal_alphabet_encode)
+    print("alphabet", alphabet)
     s_enc = minimal_string_encoding(s, minimal_alphabet_encode)
     p_enc = minimal_string_encoding(p, minimal_alphabet_encode)
+    print("encoded string: ", s_enc)
+    print("encoded pattern: ", p_enc)
     if p_enc is None:
         print(f"Pattern '{p}' not found in '{s_org}'")
         return
     bwt = burrows_wheeler_transform(s_enc)
+    print("bwt: ", bwt)
     letters_count, indexed_bwt = letter_occurences_and_indexed_bwt(bwt)
+    print("letters count: ", letters_count)
+    print("indexed bwt: ", indexed_bwt)
     prefix_sums = compute_prefix_sums(letters_count, alphabet)
+    print("prefix sums: ", prefix_sums)
     rank = calculate_rank(bwt, alphabet)
+    print("rank: ", rank)
     start, end = backwards_search(p_enc, indexed_bwt, prefix_sums, alphabet[-1], rank)
+    print("start: ", start)
+    print("end: ", end)
     if start is None or end is None:
         print(f"Pattern '{p}' not found in '{s_org}'")
         return

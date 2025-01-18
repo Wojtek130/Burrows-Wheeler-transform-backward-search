@@ -180,9 +180,11 @@ def bwt_search(s_org, p):
         print(f"Pattern '{p}' not found in '{s_org}'")
         return
     indexed_s = reverse_indexed_bwt(indexed_bwt, prefix_sums)
+    print("indexed s: ", indexed_s)
     start_l_occ = start_letter_occurences(start, end, p_enc[0], prefix_sums)
+    print("start_l_ocss: ", start_l_occ)
     final_occ = initial_string_occurences(indexed_s, start_l_occ)
-    print(final_occ)
+    print("final_occ", final_occ)
     print(check_occurences(final_occ, s, p))
 
 s = "banana"

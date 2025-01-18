@@ -210,6 +210,70 @@ pair<int, int> backwards_search(const string& p_enc, const vector<pair<char, int
     return {a, b};
 }
 
+vector<pair<char, int>> reverse_indexed_bwt(const vector<pair<char, int>>& indexed_bwt, const unordered_map<char, int>& prefix_sums) {
+    int n = indexed_bwt.size();
+    vector<pair<char, int>> indexed_s(n);
+
+    int i = 0;
+    pair<char, int> current_letter = {'$', 0}; // Start with the sentinel character
+
+    for (int j = 0; j < n; ++j) {
+        indexed_s[j] = current_letter;
+        current_letter = indexed_bwt[i];
+        i = prefix_sums.at(current_letter.first) + current_letter.second;
+    }
+
+    reverse(indexed_s.begin(), indexed_s.end());
+    return indexed_s;
+}
+
+vector<pair<char, int>> start_letter_occurrences(int start, int end, char first_pattern_letter, const unordered_map<char, int>& prefix_sums) {
+    int diff = end - start + 1;
+    vector<pair<char, int>> occurrences;
+
+    for (int i = 0; i < diff; ++i) {
+        occurrences.emplace_back(first_pattern_letter, start - prefix_sums.at(first_pattern_letter) + i);
+    }
+
+    return occurrences;
+}
+
+// Function to compute initial string occurrences
+vector<int> initial_string_occurrences(const vector<pair<char, int>>& indexed_s, const vector<pair<char, int>>& start_letter_occurrences) {
+    vector<int> occurrences;
+
+    for (size_t i = 0; i < indexed_s.size(); ++i) {
+        if (find(start_letter_occurrences.begin(), start_letter_occurrences.end(), indexed_s[i]) != start_letter_occurrences.end()) {
+            occurrences.push_back(i);
+        }
+    }
+
+    return occurrences;
+}
+
+// Function to check occurrences against the original string
+// vector<string> check_occurrences(const vector<int>& initial_s_occurrences, const string& s, const string& p) {
+//     vector<string> matches;
+//     int m = p.size();
+
+//     for (int index : initial_s_occurrences) {
+//         matches.push_back(s.substr(index, m));
+//     }
+
+//     return matches;
+// }
+
+vector<string> check_occurrences(const vector<int>& initial_s_occurrences, const string& s, const string& p) {
+    vector<string> matches;
+    int m = p.size();
+
+    for (int index : initial_s_occurrences) {
+        matches.push_back(s.substr(index, m));
+    }
+
+    return matches;
+}
+
 template <typename K, typename V>
 void printUnorderedMap(const unordered_map<K, V>& umap) {
     cout<< "{";
@@ -287,14 +351,25 @@ void bwt_search(const string& s_org, const string& p) {
         cout << "Pattern '" << p << "' not found in '" << s_org << "'" << endl;
         return;
     }
-
-    cout << "Pattern found between indices " << start << " and " << end << endl;
+    auto indexed_s = reverse_indexed_bwt(indexed_bwt, prefix_sums);
+    cout << "Indexed S: " << endl;
+    printVectorOfPairs(indexed_s);
+    auto start_l_occ = start_letter_occurrences(start, end, p_enc.front(), prefix_sums);
+    cout << "Start_l_occ: " << endl;
+    printVectorOfPairs(start_l_occ);
+    auto final_occ = initial_string_occurrences(indexed_s, start_l_occ);
+    cout << "Final_occ: " << endl;
+    printVector(final_occ);
+    auto matches = check_occurrences(final_occ, s, p);
+    cout << "Matches: " << endl;
+    printVector(matches);
+    // cout << "Pattern found between indices " << start << " and " << end << endl;
 }
 
 // Example usage
 int main() {
     string s = "banana";
-    string p = "ban";
+    string p = "an";
     bwt_search(s, p);
     return 0;
 }

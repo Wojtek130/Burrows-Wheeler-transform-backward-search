@@ -1,10 +1,12 @@
+#include <algorithm>
+#include <fstream>
 #include <iostream>
-#include <vector>
+#include <map>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <algorithm>
-#include <map>
+#include <vector>
 
 using namespace std;
 
@@ -275,7 +277,7 @@ vector<string> check_occurrences(const vector<int>& initial_s_occurrences, const
 }
 
 template <typename K, typename V>
-void printUnorderedMap(const unordered_map<K, V>& umap) {
+void print_unordered_map(const unordered_map<K, V>& umap) {
     cout<< "{";
     for (const auto& pair : umap) {
         cout << pair.first << " : " << pair.second << ", ";
@@ -284,7 +286,7 @@ void printUnorderedMap(const unordered_map<K, V>& umap) {
 }
 
 template <typename T>
-void printVector(const vector<T>& vec) {
+void print_vector(const vector<T>& vec) {
     cout << "[ ";
     for (const auto& element : vec) {
         cout << element << ", ";
@@ -293,7 +295,7 @@ void printVector(const vector<T>& vec) {
 }
 
 template <typename T>
-void printVectorOfPairs(const vector<T>& vec) {
+void print_vector_of_pairs(const vector<T>& vec) {
     cout << "[ ";
     for (const auto& element : vec) {
         cout << "(" << element.first << ", " << element.second << "), ";
@@ -302,24 +304,40 @@ void printVectorOfPairs(const vector<T>& vec) {
 }
 
 template <typename K, typename V>
-void printUnordnedMapOfPairsVector(const unordered_map<K, V>& umap) {
+void print_unordned_map_of_pairs_vector(const unordered_map<K, V>& umap) {
     cout << "[ ";
     for (const auto& element : umap) {
         cout << "(" << element.first << ", ";
-        printVector(element.second);
+        print_vector(element.second);
         cout << "), ";
     }
     cout << "]" << endl;
 }
 
+string load_file(const string& filename) {
+    ifstream file(filename); // Open the file
+    if (!file) {
+        cerr << "Unable to open the file!" << endl;
+        return "";
+    }
+
+    ostringstream buffer;
+    buffer << file.rdbuf(); // Read the entire file into the string stream
+    string fileContent = buffer.str(); // Convert the string stream to a string
+
+    cout << "File Content:\n" << fileContent << endl;
+    file.close(); // Close the file
+    return fileContent;
+}
+
 // Main function to test BWT Search
-void bwt_search(const string& s_org, const string& p) {
+vector<int> bwt_search(const string& s_org, const string& p) {
     string s = s_org + "$";
     auto [minimal_alphabet_encode, alphabet] = construct_minimal_alphabet(s);
     cout << "Minimal alphabet encoding: " << endl;
-    printUnorderedMap(minimal_alphabet_encode);
+    print_unordered_map(minimal_alphabet_encode);
     cout << "Minimal alphabet: " << endl;
-    printVector(alphabet);
+    print_vector(alphabet);
     string s_enc = minimal_string_encoding(s, minimal_alphabet_encode);
     string p_enc = minimal_string_encoding(p, minimal_alphabet_encode);
 
@@ -328,48 +346,50 @@ void bwt_search(const string& s_org, const string& p) {
 
     if (p_enc.empty()) {
         cout << "Pattern '" << p << "' not found in '" << s_org << "'" << endl;
-        return;
+        return vector<int>();
     }
 
     string bwt = burrows_wheeler_transform(s_enc);
     cout << "BWT: " << bwt << endl;
     auto [letters_count, indexed_bwt] = letter_occurrences_and_indexed_bwt(bwt);
     cout << "Letter count: " << endl;
-    printUnorderedMap(letters_count);
+    print_unordered_map(letters_count);
     cout << "Indexed BWT: " << endl;
-    printVectorOfPairs(indexed_bwt);
+    print_vector_of_pairs(indexed_bwt);
     auto prefix_sums = compute_prefix_sums(letters_count, alphabet);
     cout << "Prefix sums: " << endl;
-    printUnorderedMap(prefix_sums);
+    print_unordered_map(prefix_sums);
     auto rank = calculate_rank(bwt, alphabet);
     cout << "Rank: " << endl;
-    printUnordnedMapOfPairsVector(rank);
+    print_unordned_map_of_pairs_vector(rank);
 
 
     auto [start, end] = backwards_search(p_enc, indexed_bwt, prefix_sums, alphabet.back(), rank);
     if (start == -1 || end == -1) {
         cout << "Pattern '" << p << "' not found in '" << s_org << "'" << endl;
-        return;
+        return vector<int>();
     }
     auto indexed_s = reverse_indexed_bwt(indexed_bwt, prefix_sums);
     cout << "Indexed S: " << endl;
-    printVectorOfPairs(indexed_s);
+    print_vector_of_pairs(indexed_s);
     auto start_l_occ = start_letter_occurrences(start, end, p_enc.front(), prefix_sums);
     cout << "Start_l_occ: " << endl;
-    printVectorOfPairs(start_l_occ);
+    print_vector_of_pairs(start_l_occ);
     auto final_occ = initial_string_occurrences(indexed_s, start_l_occ);
     cout << "Final_occ: " << endl;
-    printVector(final_occ);
+    print_vector(final_occ);
     auto matches = check_occurrences(final_occ, s, p);
     cout << "Matches: " << endl;
-    printVector(matches);
+    print_vector(matches);
     // cout << "Pattern found between indices " << start << " and " << end << endl;
+    return final_occ;
 }
 
 // Example usage
 int main() {
     string s = "banana";
-    string p = "an";
-    bwt_search(s, p);
+    string p = "ipsum";
+    string t = load_file("text.txt");
+    auto matches = bwt_search(t, p);
     return 0;
 }

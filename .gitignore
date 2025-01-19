@@ -1,2 +1,9 @@
 bwt2.py
 a.out
+data/
+bwt
+mock.py
+text.txt
+execution_times/
+mock.cpp
+

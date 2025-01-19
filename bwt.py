@@ -51,7 +51,6 @@ def decode_string(s, minimal_alphabet_decode):
     return new_s
 
 def suffix_array_construction(s):
-    """Construct the suffix array of a string s in linear time."""
     n = len(s)
     suffix_array = list(range(n))
     rank = list(map(ord, s))  # Initial ranks based on character ASCII values
@@ -186,6 +185,7 @@ def bwt_search(s_org, p):
     final_occ = initial_string_occurences(indexed_s, start_l_occ)
     print("final_occ", final_occ)
     print(check_occurences(final_occ, s, p))
+    print("sa", suffix_array_construction(s_enc))
 
 s = "banana"
 p = "an"

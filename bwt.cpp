@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -325,7 +326,7 @@ string load_file(const string& filename) {
     buffer << file.rdbuf(); // Read the entire file into the string stream
     string fileContent = buffer.str(); // Convert the string stream to a string
 
-    cout << "File Content:\n" << fileContent << endl;
+    // cout << "File Content:\n" << fileContent << endl;
     file.close(); // Close the file
     return fileContent;
 }
@@ -334,62 +335,80 @@ string load_file(const string& filename) {
 vector<int> bwt_search(const string& s_org, const string& p) {
     string s = s_org + "$";
     auto [minimal_alphabet_encode, alphabet] = construct_minimal_alphabet(s);
-    cout << "Minimal alphabet encoding: " << endl;
-    print_unordered_map(minimal_alphabet_encode);
-    cout << "Minimal alphabet: " << endl;
-    print_vector(alphabet);
+    // cout << "Minimal alphabet encoding: " << endl;
+    // print_unordered_map(minimal_alphabet_encode);
+    // cout << "Minimal alphabet: " << endl;
+    // print_vector(alphabet);
     string s_enc = minimal_string_encoding(s, minimal_alphabet_encode);
     string p_enc = minimal_string_encoding(p, minimal_alphabet_encode);
 
-    cout << "Encoded string: " << s_enc<< endl;
-    cout << "Encoded pattern: " << p_enc<< endl;
+    // cout << "Encoded string: " << s_enc<< endl;
+    // cout << "Encoded pattern: " << p_enc<< endl;
 
     if (p_enc.empty()) {
-        cout << "Pattern '" << p << "' not found in '" << s_org << "'" << endl;
+        cout << "Pattern '" << p << " not found (1)" << endl;
         return vector<int>();
     }
 
     string bwt = burrows_wheeler_transform(s_enc);
-    cout << "BWT: " << bwt << endl;
+    // cout << "BWT: " << bwt << endl;
     auto [letters_count, indexed_bwt] = letter_occurrences_and_indexed_bwt(bwt);
-    cout << "Letter count: " << endl;
-    print_unordered_map(letters_count);
-    cout << "Indexed BWT: " << endl;
-    print_vector_of_pairs(indexed_bwt);
+    // cout << "Letter count: " << endl;
+    // print_unordered_map(letters_count);
+    // cout << "Indexed BWT: " << endl;
+    // print_vector_of_pairs(indexed_bwt);
     auto prefix_sums = compute_prefix_sums(letters_count, alphabet);
-    cout << "Prefix sums: " << endl;
-    print_unordered_map(prefix_sums);
+    // cout << "Prefix sums: " << endl;
+    // print_unordered_map(prefix_sums);
     auto rank = calculate_rank(bwt, alphabet);
-    cout << "Rank: " << endl;
-    print_unordned_map_of_pairs_vector(rank);
+    // cout << "Rank: " << endl;
+    // print_unordned_map_of_pairs_vector(rank);
 
 
     auto [start, end] = backwards_search(p_enc, indexed_bwt, prefix_sums, alphabet.back(), rank);
     if (start == -1 || end == -1) {
-        cout << "Pattern '" << p << "' not found in '" << s_org << "'" << endl;
+        cout << "Pattern " << p << " not found (2)"<< endl;
         return vector<int>();
     }
     auto indexed_s = reverse_indexed_bwt(indexed_bwt, prefix_sums);
-    cout << "Indexed S: " << endl;
-    print_vector_of_pairs(indexed_s);
+    // cout << "Indexed S: " << endl;
+    // print_vector_of_pairs(indexed_s);
     auto start_l_occ = start_letter_occurrences(start, end, p_enc.front(), prefix_sums);
-    cout << "Start_l_occ: " << endl;
-    print_vector_of_pairs(start_l_occ);
+    // cout << "Start_l_occ: " << endl;
+    // print_vector_of_pairs(start_l_occ);
     auto final_occ = initial_string_occurrences(indexed_s, start_l_occ);
-    cout << "Final_occ: " << endl;
-    print_vector(final_occ);
+    // cout << "Final_occ: " << endl;
+    // print_vector(final_occ);
     auto matches = check_occurrences(final_occ, s, p);
-    cout << "Matches: " << endl;
-    print_vector(matches);
+    // cout << "Matches: " << endl;
+    // print_vector(matches);
     // cout << "Pattern found between indices " << start << " and " << end << endl;
     return final_occ;
 }
 
 // Example usage
 int main() {
-    string s = "banana";
-    string p = "ipsum";
-    string t = load_file("text.txt");
-    auto matches = bwt_search(t, p);
+    string p = "patroklos";
+    string t = load_file("data/iliad_ready.txt");
+    int n = 1000;  // Initial substring length
+    int x = 50000;  // Number of additional characters in each iteration
+    cout << bwt_search(t, p).size() << endl;
+    // ofstream file("execution_times/execution_times_" + p +"_big.csv");
+    // for (int i = n; i <= t.size(); i += x) {
+    //     // Get the substring from s[0:i] (or s[:i] in Python terms)
+    //     string sub = t.substr(0, i);
+    //     auto start = chrono::high_resolution_clock::now();
+    //     bwt_search(sub, p);
+    //     auto end = chrono::high_resolution_clock::now();
+    //     chrono::duration<double> duration = end - start;
+    //     file << i << "," << duration.count() << "\n";
+    //     if (i % 10000 == 0) cout << duration.count() << endl;
+        
+    //     // Print the current substring
+    //     // cout << "Substring: " << sub << endl;
+    // }
+    // file.close();
+    // auto matches = bwt_search(t, p);
+    // cout << matches.size() << " occurrences of '" << p << "' found in the text" << endl;
     return 0;
 }

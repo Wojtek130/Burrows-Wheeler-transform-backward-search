@@ -323,6 +323,35 @@ vector<int> bwt_search(const string& s_org, const string& p) {
     return final_occ;
 }
 
+string naive_compression(const string& input) {
+    if (input.empty()) {
+        return ""; // Handle empty string
+    }
+
+    string result;
+    char currentChar = input[0];
+    int count = 1;
+
+    for (size_t i = 1; i < input.size(); ++i) {
+        if (input[i] == currentChar) {
+            ++count;
+        } else {
+            if (count > 1){
+                result += currentChar + to_string(count);
+            }
+            else {
+                result += currentChar;
+            }
+            currentChar = input[i];
+            count = 1;
+        }
+    }
+
+    result += currentChar + to_string(count);
+
+    return result;
+}
+
 // Example usage
 // int main() {
 //     string p = "patroklos";

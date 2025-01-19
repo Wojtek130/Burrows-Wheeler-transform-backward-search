@@ -1,15 +1,4 @@
-#include <algorithm>
-#include <chrono>
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <sstream>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
+#include "bwt.hpp"
 
 string remove_duplicates(const string& input) {
     unordered_set<char> seen; // To track seen characters
@@ -45,7 +34,7 @@ vector<char> radix_sort(const string& s, const string& alphabet) {
 }
 
 // Function to construct a minimal alphabet from a string
-pair<unordered_map<char, char>, vector<char>> construct_minimal_alphabet(const string& s, const string& initial_alphabet = "$abcdefghijklmnopqrstuvwxyz") {
+pair<unordered_map<char, char>, vector<char>> construct_minimal_alphabet(const string& s, const string& initial_alphabet) {
     auto s_no_duplicates = remove_duplicates(s);
     vector<char> unique_letters_sorted = radix_sort(string(s_no_duplicates.begin(), s_no_duplicates.end()), initial_alphabet);
 
@@ -277,59 +266,7 @@ vector<string> check_occurrences(const vector<int>& initial_s_occurrences, const
     return matches;
 }
 
-template <typename K, typename V>
-void print_unordered_map(const unordered_map<K, V>& umap) {
-    cout<< "{";
-    for (const auto& pair : umap) {
-        cout << pair.first << " : " << pair.second << ", ";
-    }
-    cout << "}\n";
-}
 
-template <typename T>
-void print_vector(const vector<T>& vec) {
-    cout << "[ ";
-    for (const auto& element : vec) {
-        cout << element << ", ";
-    }
-    cout << "]" << endl;
-}
-
-template <typename T>
-void print_vector_of_pairs(const vector<T>& vec) {
-    cout << "[ ";
-    for (const auto& element : vec) {
-        cout << "(" << element.first << ", " << element.second << "), ";
-    }
-    cout << "]" << endl;
-}
-
-template <typename K, typename V>
-void print_unordned_map_of_pairs_vector(const unordered_map<K, V>& umap) {
-    cout << "[ ";
-    for (const auto& element : umap) {
-        cout << "(" << element.first << ", ";
-        print_vector(element.second);
-        cout << "), ";
-    }
-    cout << "]" << endl;
-}
-
-string load_file(const string& filename) {
-    ifstream file(filename); // Open the file
-    if (!file) {
-        cerr << "Unable to open the file!" << endl;
-        return "";
-    }
-
-    ostringstream buffer;
-    buffer << file.rdbuf(); // Read the entire file into the string stream
-    string fileContent = buffer.str(); // Convert the string stream to a string
-
-    // cout << "File Content:\n" << fileContent << endl;
-    file.close(); // Close the file
-    return fileContent;
-}
 
 // Main function to test BWT Search
 vector<int> bwt_search(const string& s_org, const string& p) {
@@ -387,28 +324,29 @@ vector<int> bwt_search(const string& s_org, const string& p) {
 }
 
 // Example usage
-int main() {
-    string p = "patroklos";
-    string t = load_file("data/iliad_ready.txt");
-    int n = 1000;  // Initial substring length
-    int x = 50000;  // Number of additional characters in each iteration
-    cout << bwt_search(t, p).size() << endl;
-    // ofstream file("execution_times/execution_times_" + p +"_big.csv");
-    // for (int i = n; i <= t.size(); i += x) {
-    //     // Get the substring from s[0:i] (or s[:i] in Python terms)
-    //     string sub = t.substr(0, i);
-    //     auto start = chrono::high_resolution_clock::now();
-    //     bwt_search(sub, p);
-    //     auto end = chrono::high_resolution_clock::now();
-    //     chrono::duration<double> duration = end - start;
-    //     file << i << "," << duration.count() << "\n";
-    //     if (i % 10000 == 0) cout << duration.count() << endl;
+// int main() {
+//     string p = "patroklos";
+//     // string t = "patroklospatroklospatroklospatroklos";
+//     string t = load_file("data/iliad_ready.txt");
+//     int n = 1000;  // Initial substring length
+//     int x = 50000;  // Number of additional characters in each iteration
+//     cout << bwt_search(t, p).size() << endl;
+//     // ofstream file("execution_times/execution_times_" + p +"_big.csv");
+//     // for (int i = n; i <= t.size(); i += x) {
+//     //     // Get the substring from s[0:i] (or s[:i] in Python terms)
+//     //     string sub = t.substr(0, i);
+//     //     auto start = chrono::high_resolution_clock::now();
+//     //     bwt_search(sub, p);
+//     //     auto end = chrono::high_resolution_clock::now();
+//     //     chrono::duration<double> duration = end - start;
+//     //     file << i << "," << duration.count() << "\n";
+//     //     if (i % 10000 == 0) cout << duration.count() << endl;
         
-    //     // Print the current substring
-    //     // cout << "Substring: " << sub << endl;
-    // }
-    // file.close();
-    // auto matches = bwt_search(t, p);
-    // cout << matches.size() << " occurrences of '" << p << "' found in the text" << endl;
-    return 0;
-}
+//     //     // Print the current substring
+//     //     // cout << "Substring: " << sub << endl;
+//     // }
+//     // file.close();
+//     // auto matches = bwt_search(t, p);
+//     // cout << matches.size() << " occurrences of '" << p << "' found in the text" << endl;
+//     return 0;
+// }

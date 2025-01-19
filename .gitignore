@@ -6,4 +6,5 @@ mock.py
 text.txt
 execution_times/
 mock.cpp
+*.o
 

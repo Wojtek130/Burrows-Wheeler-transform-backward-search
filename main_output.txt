@@ -1,0 +1,8 @@
+Number of occurences BWT: 151
+Number of occurences Regex: 151
+Pattern: patroklos, correctness: true
+Number of occurences BWT: 159
+Number of occurences Regex: 159
+Pattern: romeo, correctness: true
+Romeo and Juliet compressed BWT: 75.9004% size of the original
+Iliad compressed BWT: 63.5086% size of the original

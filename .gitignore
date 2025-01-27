@@ -7,4 +7,5 @@ text.txt
 execution_times/
 mock.cpp
 *.o
+bwt_example*
 
